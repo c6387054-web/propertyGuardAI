@@ -1,63 +1,33 @@
 import streamlit as st
+from pypdf import PdfReader
 
-st.set_page_config(page_title="PropGuard AI", page_icon="🏠", layout="wide")
+# Page Configuration
+st.set_page_config(page_title="PropertyGuardAI", page_icon="🏠")
 
-st.title("🏠 PropGuard AI")
-st.subheader("AI-Powered Property Verification & Risk Detection")
-st.write("Verify property information and documents to identify possible inconsistencies and risks.")
+st.title("🏠 PropertyGuardAI")
+st.write("Automated Property Document Analysis & Verification System")
 
-st.divider()
+# File Uploader
+uploaded_file = st.file_uploader("Upload Property Document (PDF)", type=["pdf"])
 
-st.header("📋 Property Information")
+if uploaded_file is not None:
+    # PDF Text Extraction
+    pdf_reader = PdfReader(uploaded_file)
+    extracted_text = ""
+    for page in pdf_reader.pages:
+        text = page.extract_text()
+        if text:
+            extracted_text += text + "\n"
 
-col1, col2 = st.columns(2)
-
-with col1:
-    property_id = st.text_input("Property ID", value="PROP-001")
-    location = st.text_input("Property Location", value="Okara")
-    property_type = st.selectbox("Property Type", ["House", "Plot", "Apartment", "Commercial"])
-
-with col2:
-    area = st.text_input("Property Area", value="10 Marla")
-    owner_name = st.text_input("Owner Name", value="Ali")
-    asking_price = st.text_input("Asking Price", value="1.5 Crore")
-
-st.divider()
-
-st.header("📑 Upload Property Documents")
-uploaded_file = st.file_uploader("Upload Property Document", type=["pdf", "png", "jpg"])
-
-verify_button = st.button("🔍 Verify Property", type="primary")
-
-if verify_button:
-    st.divider()
-    st.header("📊 Verification Result")
+    st.success("✅ PDF successfully uploaded and processed!")
     
-    if uploaded_file is not None:
-        st.success("✅ Verification Process Completed Successfully!")
-        
-        # Display Mock Risk Analysis Results
-        col_res1, col_res2 = st.columns(2)
-        
-        with col_res1:
-            st.metric(label="Overall Risk Status", value="LOW RISK", delta="Passed")
-            st.write("*Area Match:* ✅ Matched (10 Marla)")
-            st.write("*Owner Information:* ✅ Matched (Ali)")
-            
-        with col_res2:
-            st.write("*Location Match:* ✅ Matched (Okara)")
-            st.write("*Duplicate Property Check:* ✅ No Duplicate Found")
-            st.write("*Manual Verification Required:* ❌ No")
-
-        st.info("💡 *AI Summary:* Document text and user inputs match perfectly. No fraud or discrepancy detected.")
-        
-        st.divider()
-        st.subheader("📄 Final Report")
-        st.download_button(
-            label="📥 Download Risk Assessment Report (PDF)",
-            data=f"PropGuard AI Verification Report\nProperty ID: {property_id}\nOwner: {owner_name}\nStatus: Passed (Low Risk)",
-            file_name=f"{property_id}_Verification_Report.txt",
-            mime="text/plain"
-        )
-    else:
-        st.error("⚠️ Please upload a property document before running the verification.")
+    # Document Preview & Details
+    st.subheader("📄 Extracted Document Data")
+    st.text_area("Extracted Content", value=extracted_text, height=300)
+    
+    # Quick Statistics
+    col1, col2 = st.columns(2)
+    with col1:
+        st.metric("Total Pages", len(pdf_reader.pages))
+    with col2:
+        st.metric("Total Character Count", len(extracted_text))
