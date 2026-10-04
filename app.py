@@ -1,4 +1,4 @@
-mport streamlit as st
+import streamlit as st
 import input_module
 import output_module
 
